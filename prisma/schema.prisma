@@ -1,0 +1,52 @@
+// schema.prisma
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Cadastrados {
+  id             Int           @id @default(autoincrement())
+  nomeCompleto   String
+  dataNascimento DateTime
+  cpf            String        @unique
+  contato        String
+  justificativa  Justificativa
+  observacao     String? // opcional
+  Registros      Registros[]
+  Cestas         Cestas[]
+}
+
+model Registros {
+  id            Int         @id @default(autoincrement())
+  dataCompra    DateTime
+  fornecedor    String
+  quantidade    Int
+  valorUnitario Float
+  valorTotal    Float       @default(0.0)
+  comprovante   String // pode armazenar o caminho do PDF ou base64
+  cadastradoId  Int
+  cadastrado    Cadastrados @relation(fields: [cadastradoId], references: [id])
+}
+
+model Cestas {
+  id                      Int           @id @default(autoincrement())
+  nomeCompleto            String
+  justificativa           Justificativa
+  dataInicio              DateTime
+  dataVencimentoProtocolo DateTime      @default(dbgenerated("(DATE_ADD(dataInicio, INTERVAL 3 MONTH))")) // cálculo automático
+  statusColetaMes         String // pode ser um enum se houver valores fixos
+  cadastradoId            Int
+  cadastrado              Cadastrados   @relation(fields: [cadastradoId], references: [id])
+}
+
+// Enum para justificativas
+enum Justificativa {
+  VIVIDA
+  ORFAO
+  PROBLEMAS_FINANCEIROS
+}
