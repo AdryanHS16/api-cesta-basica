@@ -9,44 +9,82 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Cadastrados {
-  id             Int           @id @default(autoincrement())
-  nomeCompleto   String
-  dataNascimento DateTime
-  cpf            String        @unique
-  contato        String
-  justificativa  Justificativa
-  observacao     String? // opcional
-  Registros      Registros[]
-  Cestas         Cestas[]
+model User {
+  id       Int    @id @default(autoincrement())
+  user     String
+  password String
 }
 
-model Registros {
-  id            Int         @id @default(autoincrement())
-  dataCompra    DateTime
-  fornecedor    String
-  quantidade    Int
-  valorUnitario Float
-  valorTotal    Float       @default(0.0)
-  comprovante   String // pode armazenar o caminho do PDF ou base64
-  cadastradoId  Int
-  cadastrado    Cadastrados @relation(fields: [cadastradoId], references: [id])
+model Provider {
+  id           Int      @id @default(autoincrement())
+  company_name String
+  cnpj         String
+  address      String
+  contact      String
+  buys         Buy[]
+  baskets      Basket[]
 }
 
-model Cestas {
-  id                      Int           @id @default(autoincrement())
-  nomeCompleto            String
-  justificativa           Justificativa
-  dataInicio              DateTime
-  dataVencimentoProtocolo DateTime      @default(dbgenerated("(DATE_ADD(dataInicio, INTERVAL 3 MONTH))")) // cálculo automático
-  statusColetaMes         String // pode ser um enum se houver valores fixos
-  cadastradoId            Int
-  cadastrado              Cadastrados   @relation(fields: [cadastradoId], references: [id])
+model Buy {
+  id            Int      @id @default(autoincrement())
+  date          DateTime
+  quantity      Int
+  unit_value    Float
+  total_value   Float
+  checking_copy String?
+  providerId    Int
+
+  provider Provider @relation(fields: [providerId], references: [id])
+
+  baskets Basket[]
+}
+
+model Receiver {
+  id            Int      @id @default(autoincrement())
+  name          String
+  address       String
+  contact       String
+  cpf           String
+  date_of_birth DateTime
+  observation   String?
+
+  donations Donation[]
+  baskets   Basket[]
+}
+
+model Basket {
+  id         Int      @id @default(autoincrement())
+  products   String
+  validity   DateTime
+  status     String
+  providerId Int?
+  receiverId Int?
+  buyId      Int?
+
+  provider Provider? @relation(fields: [providerId], references: [id])
+  receiver Receiver? @relation(fields: [receiverId], references: [id])
+  buy      Buy?      @relation(fields: [buyId], references: [id])
+
+  Donation Donation[]
+}
+
+model Donation {
+  id         Int      @id @default(autoincrement())
+  justify    Justify
+  start_date DateTime
+  end_date   DateTime
+  basketId   Int
+  receiverId Int
+
+  basket   Basket   @relation(fields: [basketId], references: [id])
+  receiver Receiver @relation(fields: [receiverId], references: [id])
 }
 
 // Enum para justificativas
-enum Justificativa {
+enum Justify {
   VIVIDA
   ORFAO
   PROBLEMAS_FINANCEIROS
+
+  @@map("justify")
 }

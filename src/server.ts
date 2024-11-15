@@ -1,11 +1,16 @@
-const express = require('express')
+import express from "express";
+import { routes } from "./routes";
+import { config } from './utils/config';
+
 const app = express()
-const port = process.env.PORT || 4000;
+const PORT = config.port;
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+app.use(express.json())
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+app.use(routes)
+
+
+
+app.listen(PORT, () => {
+  console.log(`The server is running on http://localhost:${PORT}`)
 })
