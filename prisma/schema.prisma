@@ -11,6 +11,7 @@ model User {
   id       Int    @id @default(autoincrement())
   user     String
   password String
+  excluido String @default("N") // Coluna para controlar exclusão (N = ativo, S = excluído)
 }
 
 model Supplier {
@@ -19,8 +20,9 @@ model Supplier {
   cnpj         String
   address      String
   contact      String
-  buys         Buy[]
-  baskets      Basket[]
+  buys         Buy[] // Relacionamento com a tabela Buy
+  baskets      Basket[] // Relacionamento com a tabela Basket
+  excluido     String   @default("N") // Coluna para controlar exclusão (N = ativo, S = excluído)
 }
 
 model Buy {
@@ -31,10 +33,10 @@ model Buy {
   total_value   Float
   checking_copy String?
   supplierId    Int
+  excluido      String   @default("N") // Coluna para controlar exclusão (N = ativo, S = excluído)
 
   supplier Supplier @relation(fields: [supplierId], references: [id])
-
-  baskets Basket[]
+  baskets  Basket[] // Relacionamento com a tabela Basket
 }
 
 model Receiver {
@@ -45,9 +47,10 @@ model Receiver {
   cpf           String
   date_of_birth DateTime
   observation   String?
+  excluido      String   @default("N") // Coluna para controlar exclusão (N = ativo, S = excluído)
 
-  donations Donation[]
-  baskets   Basket[]
+  donations Donation[] // Relacionamento com a tabela Donation
+  baskets   Basket[] // Relacionamento com a tabela Basket
 }
 
 model Basket {
@@ -58,12 +61,12 @@ model Basket {
   supplierId Int?
   receiverId Int?
   buyId      Int?
+  excluido   String   @default("N") // Coluna para controlar exclusão (N = ativo, S = excluído)
 
-  supplier Supplier? @relation(fields: [supplierId], references: [id])
-  receiver Receiver? @relation(fields: [receiverId], references: [id])
-  buy      Buy?      @relation(fields: [buyId], references: [id])
-
-  Donation Donation[]
+  supplier Supplier?  @relation(fields: [supplierId], references: [id])
+  receiver Receiver?  @relation(fields: [receiverId], references: [id])
+  buy      Buy?       @relation(fields: [buyId], references: [id])
+  Donation Donation[] // Relacionamento com a tabela Donation
 }
 
 model Donation {
@@ -73,6 +76,7 @@ model Donation {
   end_date   DateTime
   basketId   Int
   receiverId Int
+  excluido   String   @default("N") // Coluna para controlar exclusão (N = ativo, S = excluído)
 
   basket   Basket   @relation(fields: [basketId], references: [id])
   receiver Receiver @relation(fields: [receiverId], references: [id])
