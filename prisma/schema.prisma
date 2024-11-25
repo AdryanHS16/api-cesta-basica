@@ -1,5 +1,3 @@
-// schema.prisma
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -15,7 +13,7 @@ model User {
   password String
 }
 
-model Provider {
+model Supplier {
   id           Int      @id @default(autoincrement())
   company_name String
   cnpj         String
@@ -32,9 +30,9 @@ model Buy {
   unit_value    Float
   total_value   Float
   checking_copy String?
-  providerId    Int
+  supplierId    Int
 
-  provider Provider @relation(fields: [providerId], references: [id])
+  supplier Supplier @relation(fields: [supplierId], references: [id])
 
   baskets Basket[]
 }
@@ -57,11 +55,11 @@ model Basket {
   products   String
   validity   DateTime
   status     String
-  providerId Int?
+  supplierId Int?
   receiverId Int?
   buyId      Int?
 
-  provider Provider? @relation(fields: [providerId], references: [id])
+  supplier Supplier? @relation(fields: [supplierId], references: [id])
   receiver Receiver? @relation(fields: [receiverId], references: [id])
   buy      Buy?      @relation(fields: [buyId], references: [id])
 
